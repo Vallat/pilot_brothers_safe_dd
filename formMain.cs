@@ -15,14 +15,19 @@ namespace DevGridContol
     {
         private readonly Image opened_state = Image.FromFile("resources/opened.png");
         private readonly Image closed_state = Image.FromFile("resources/closed.png");
+
+        DataGridViewImageCell[,] row_cells_array = null;
+        DataGridViewImageCell[,] column_cells_array = null;
+
         public formMain()
         {
+
             InitializeComponent();
         }
 
         private void formMain_Load(object sender, EventArgs e)
         {
-            int ARRAY_SIZE = 30;
+            int ARRAY_SIZE = 10;
 
             InitializeDataGrid(ARRAY_SIZE);
         }
@@ -35,14 +40,10 @@ namespace DevGridContol
                 DataGridViewImageColumn new_column = new DataGridViewImageColumn();
                 new_column.ImageLayout = DataGridViewImageCellLayout.Stretch;
                 DataGrid.Columns.Add(new_column);
-
-                DataGridViewRow new_row = new DataGridViewRow();
-                new_row.Height = new_column.Width;
-                DataGrid.Rows.Add(new_row);
             }
 
-            DataGridViewImageColumn column = (DataGridViewImageColumn) DataGrid.Columns[0];
             DataGrid.Rows.Clear();
+            DataGridViewImageColumn column = (DataGridViewImageColumn) DataGrid.Columns[0];
             for (int i = 0; i < grid_size; i++)
             {
                 DataGridViewRow new_row = new DataGridViewRow();
@@ -50,12 +51,16 @@ namespace DevGridContol
                 DataGrid.Rows.Add(new_row);
             }
 
+            row_cells_array = new DataGridViewImageCell[grid_size, grid_size];
+            column_cells_array = new DataGridViewImageCell[grid_size, grid_size];
             for (int i = 0; i < grid_size; i++)
             {
                 for (int j = 0; j < grid_size; j++)
                 {
                     DataGridViewImageCell cell = (DataGridViewImageCell)DataGrid.Rows[j].Cells[i];
                     cell.ChangeImage(closed_state);
+                    row_cells_array[j, i] = cell;
+                    column_cells_array[i, j] = cell;
                 }
             }
         }
@@ -69,13 +74,13 @@ namespace DevGridContol
         {
             for (int i = 0; i < DataGrid.ColumnCount; i++)
             {
-                DataGridViewImageCell cell = (DataGridViewImageCell) DataGrid.Rows[i].Cells[column];
+                DataGridViewImageCell cell = row_cells_array[row, i];
                 SwitchCellImage(cell);
-                if(i == column)
+                if(i == row)
                 {
                     continue;
                 }
-                cell = (DataGridViewImageCell)DataGrid.Rows[row].Cells[i];
+                cell = column_cells_array[column, i];
                 SwitchCellImage(cell);
             }
         }
