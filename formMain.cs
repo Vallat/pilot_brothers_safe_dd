@@ -16,8 +16,7 @@ namespace DevGridContol
         private readonly Image opened_state = Image.FromFile("resources/opened.png");
         private readonly Image closed_state = Image.FromFile("resources/closed.png");
 
-        DataGridViewImageCell[,] row_cells_array = null;
-        DataGridViewImageCell[,] column_cells_array = null;
+        bool[,] cell_states = null;
 
         public formMain()
         {
@@ -27,7 +26,7 @@ namespace DevGridContol
 
         private void formMain_Load(object sender, EventArgs e)
         {
-            int ARRAY_SIZE = 10;
+            int ARRAY_SIZE = 20;
 
             InitializeDataGrid(ARRAY_SIZE);
         }
@@ -51,22 +50,21 @@ namespace DevGridContol
                 DataGrid.Rows.Add(new_row);
             }
 
-            row_cells_array = new DataGridViewImageCell[grid_size, grid_size];
-            column_cells_array = new DataGridViewImageCell[grid_size, grid_size];
+            cell_states = new bool[grid_size, grid_size];
             for (int i = 0; i < grid_size; i++)
             {
                 for (int j = 0; j < grid_size; j++)
                 {
                     DataGridViewImageCell cell = (DataGridViewImageCell)DataGrid.Rows[j].Cells[i];
                     cell.ChangeImage(closed_state);
-                    row_cells_array[j, i] = cell;
-                    column_cells_array[i, j] = cell;
+                    cell_states[i, j] = false;
                 }
             }
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
+            //Console.WriteLine(e.ColumnIndex.ToString() + ":" + e.RowIndex.ToString());
             ChangeLocks(e.ColumnIndex, e.RowIndex);
         }
 
@@ -74,20 +72,21 @@ namespace DevGridContol
         {
             for (int i = 0; i < DataGrid.ColumnCount; i++)
             {
-                DataGridViewImageCell cell = row_cells_array[row, i];
-                SwitchCellImage(cell);
-                if(i == row)
+                DataGridViewImageCell cell = (DataGridViewImageCell)DataGrid.Rows[row].Cells[i];
+                SwitchCellImage(cell, row, i);
+                if (i == row)
                 {
                     continue;
                 }
-                cell = column_cells_array[column, i];
-                SwitchCellImage(cell);
+                cell = (DataGridViewImageCell)DataGrid.Rows[i].Cells[column];
+                SwitchCellImage(cell, i, column);
             }
         }
         
-        private void SwitchCellImage(DataGridViewImageCell cell)
+        private void SwitchCellImage(DataGridViewImageCell cell, int cell_x, int cell_y)
         {
-            if (cell.Value == opened_state)
+            bool cell_state = cell_states[cell_x, cell_y];
+            if (cell_state)
             {
                 cell.ChangeImage(closed_state);
             }
@@ -95,11 +94,15 @@ namespace DevGridContol
             {
                 cell.ChangeImage(opened_state);
             }
+            cell_states[cell_x, cell_y] = !cell_state;
         }
     }
     
     static class ExtensionMethod
     {
+
+        public static bool state_opened = true;
+
         public static void ChangeImage(this DataGridViewImageCell cell, Image img_to_set)
         {
             cell.Value = img_to_set;
