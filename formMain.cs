@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Common;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -71,15 +72,28 @@ namespace DevGridContol
 
         private void RandomizeLocks(int number_of_randoms, int max_random)
         {
+            var exclude_rows = new HashSet<int> { };
+            var exclude_columns = new HashSet<int> { };
             Random random = new Random();
-            for (int i = 0; i < number_of_randoms; i++)
+            for (int element_num = 0; element_num < number_of_randoms; element_num++)
             {
-                ChangeLocks(random.Next(0, max_random), random.Next(0, max_random));
+                var rows_range = Enumerable.Range(0, max_random).Where(i => !exclude_rows.Contains(i));
+                var column_range = Enumerable.Range(0, max_random).Where(i => !exclude_columns.Contains(i));
+
+                int row_index = random.Next(0, max_random - exclude_rows.Count());
+                int column_index = random.Next(0, max_random - exclude_columns.Count());
+
+                int row_random_number = rows_range.ElementAt(row_index);
+                int column_random_number = column_range.ElementAt(column_index);
+                exclude_rows.Add(row_random_number);
+                exclude_columns.Add(column_random_number);
+                ChangeLocks(row_random_number, column_random_number);
             }
         }
 
         private void ChangeLocks(int column, int row)
         {
+
             for (int i = 0; i < DataGrid.ColumnCount; i++)
             {
                 DataGridViewImageCell cell = (DataGridViewImageCell)DataGrid.Rows[row].Cells[i];
