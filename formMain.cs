@@ -35,7 +35,6 @@ namespace DevGridContol
         public formMain()
         {
             InitializeComponent();
-            WinText.BackColor = Color.Transparent;
         }
 
         private void formMain_Load(object sender, EventArgs e)
@@ -49,8 +48,10 @@ namespace DevGridContol
             DataGrid.Columns.Clear();
             for (int i = 0; i < grid_size; i++)
             {
-                DataGridViewImageColumn new_column = new DataGridViewImageColumn();
-                new_column.ImageLayout = DataGridViewImageCellLayout.Stretch;
+                DataGridViewImageColumn new_column = new DataGridViewImageColumn
+                {
+                    ImageLayout = DataGridViewImageCellLayout.Stretch
+                };
                 DataGrid.Columns.Add(new_column);
             }
 
@@ -58,8 +59,10 @@ namespace DevGridContol
             DataGridViewImageColumn column = (DataGridViewImageColumn) DataGrid.Columns[0];
             for (int i = 0; i < grid_size; i++)
             {
-                DataGridViewRow new_row = new DataGridViewRow();
-                new_row.Height = column.Width;
+                DataGridViewRow new_row = new DataGridViewRow
+                {
+                    Height = column.Width
+                };
                 DataGrid.Rows.Add(new_row);
             }
 
@@ -83,7 +86,6 @@ namespace DevGridContol
             {
                 return;
             }
-            //Console.WriteLine(e.ColumnIndex.ToString() + ":" + e.RowIndex.ToString());
             ChangeLocks(e.ColumnIndex, e.RowIndex);
             if (CheckWinCondition())
             {
@@ -181,7 +183,6 @@ namespace DevGridContol
 
     static class ExtensionMethod
     {
-
         public static bool state_opened = true;
 
         public static void ChangeImage(this DataGridViewImageCell cell, Image img_to_set)
