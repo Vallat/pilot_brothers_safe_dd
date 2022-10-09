@@ -17,13 +17,25 @@ namespace DevGridContol
         private readonly Image opened_state = Image.FromFile("resources/opened.png");
         private readonly Image closed_state = Image.FromFile("resources/closed.png");
 
-        bool[,] cell_states = null;
+        private bool[,] cell_states = null;
 
-        int ARRAY_SIZE = 5;
+        private bool is_playing = false;
+
+        private int array_size_ = 5;
+        public int ARRAY_SIZE
+        {
+            get { return array_size_; }
+            set {
+                value = Math.Min(Math.Max(2, value), Int32.MaxValue);
+                array_size_ = value;
+                InitializeDataGrid(ARRAY_SIZE);
+            }
+        }
+        
         public formMain()
         {
-
             InitializeComponent();
+            WinText.BackColor = Color.Transparent;
         }
 
         private void formMain_Load(object sender, EventArgs e)
@@ -33,6 +45,7 @@ namespace DevGridContol
 
         private void InitializeDataGrid(int grid_size)
         {
+            is_playing = false;
             DataGrid.Columns.Clear();
             for (int i = 0; i < grid_size; i++)
             {
@@ -61,13 +74,24 @@ namespace DevGridContol
                 }
             }
             RandomizeLocks(grid_size / 2, grid_size);
+            is_playing = true;
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (!is_playing)
+            {
+                return;
+            }
             //Console.WriteLine(e.ColumnIndex.ToString() + ":" + e.RowIndex.ToString());
             ChangeLocks(e.ColumnIndex, e.RowIndex);
-            Console.WriteLine(CheckWinCondition().ToString());
+            if (CheckWinCondition())
+            {
+                WinText.Visible = true;
+                ArraySizeInput.Visible = false;
+                N_label.Visible = false;
+                is_playing = false;
+            }
         }
 
         private void RandomizeLocks(int number_of_randoms, int max_random)
@@ -142,8 +166,19 @@ namespace DevGridContol
             }
             cell_states[cell_x, cell_y] = !cell_state;
         }
+
+        private void ArraySizeInput_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if(e.KeyChar != Convert.ToChar(Keys.Return))
+            {
+                return;
+            }
+            int new_array_size = Int32.Parse(ArraySizeInput.Text);
+            ARRAY_SIZE = new_array_size;
+            ArraySizeInput.Text = "";
+        }
     }
-    
+
     static class ExtensionMethod
     {
 
